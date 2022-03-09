@@ -1,0 +1,21 @@
+name: napari-blob-detection
+display_name: napari blob detection
+contributions:
+  commands: 
+    - id: napari-blob-detection.make_qwidget
+      python_name: napari_blob_detection._widget:ExampleQWidget
+      title: Make example QWidget
+    - id: napari-blob-detection.make_magic_widget
+      python_name: napari_blob_detection._widget:example_magic_widget
+      title: Make example magic widget
+    - id: napari-blob-detection.make_func_widget
+      python_name: napari_blob_detection._widget:example_function_widget
+      title: Make example function widget   
+  widgets:
+    - command: napari-blob-detection.make_qwidget
+      display_name: Example QWidget
+    - command: napari-blob-detection.make_magic_widget
+      display_name: Example Magic Widget
+    - command: napari-blob-detection.make_func_widget
+      autogenerate: true
+      display_name: Example Function Widget 
