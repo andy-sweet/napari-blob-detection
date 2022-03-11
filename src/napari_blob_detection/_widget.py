@@ -8,6 +8,11 @@ class Dimensionality(Enum):
     THREE_D = auto()
 
 
+DIMENSIONALITY_LOOKUP = {
+    Dimensionality.TWO_D: 2,
+    Dimensionality.THREE_D: 3,
+}
+
 class Algorithm(Enum):
     DOG = auto()
     DOH = auto()
@@ -32,14 +37,16 @@ def detect_blobs(
     data = image.data
     all_coords = []
     all_sigmas = []
-    # TODO: only works for 3D data, understand to generalize this.
     algorithm_func = ALGORITHM_LOOKUP[algorithm]
-    if dimensionality == Dimensionality.TWO_D:
-        for i in range(data.shape[0]):
-            coords = algorithm_func(data[i, :, :], min_sigma=min_sigma, max_sigma=max_sigma, threshold=threshold)
-            for c in coords:
-                all_coords.append([i] + list(c[:2]))
-                all_sigmas.append(c[-1])
+    ndim = DIMENSIONALITY_LOOKUP[dimensionality]
+    last_dims_index = tuple(slice(n) for n in data.shape[-ndim:])
+    for index in np.ndindex(data.shape[:-ndim]):
+        full_index = index + last_dims_index
+        indexed_image_data = data[full_index]
+        coords = algorithm_func(indexed_image_data, min_sigma=min_sigma, max_sigma=max_sigma, threshold=threshold)
+        for c in coords:
+            all_coords.append(index + tuple(c[:ndim]))
+            all_sigmas.append(c[-1])
     state = {
         'name': f'{image.name}-{algorithm}',
         'face_color': 'red',
