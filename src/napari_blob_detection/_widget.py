@@ -39,6 +39,11 @@ def detect_blobs(
     all_sigmas = []
     algorithm_func = ALGORITHM_LOOKUP[algorithm]
     ndim = DIMENSIONALITY_LOOKUP[dimensionality]
+    if ndim == 2:
+        radius = np.sqrt(2)
+    else:
+        radius = np.sqrt(3)
+
     last_dims_index = tuple(slice(n) for n in data.shape[-ndim:])
     for index in np.ndindex(data.shape[:-ndim]):
         full_index = index + last_dims_index
@@ -52,7 +57,10 @@ def detect_blobs(
         'face_color': 'red',
         'opacity': 0.5,
         'features': {'sigma': all_sigmas},
-        'size': np.sqrt(2) * np.array(all_sigmas),
+        'size': radius * np.array(all_sigmas),
+        # match the scale of the image and the point
+        # point coordinates are not affected 
+        'scale': image.scale,
     }
     return (all_coords, state, 'Points')
 
