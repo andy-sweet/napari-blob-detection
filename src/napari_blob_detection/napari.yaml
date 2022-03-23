@@ -2,10 +2,9 @@ name: napari-blob-detection
 display_name: napari blob detection
 contributions:
   commands: 
-    - id: napari-blob-detection.detect_blobs
-      python_name: napari_blob_detection._widget:detect_blobs
+    - id: napari-blob-detection.detect_blobs_widget
+      python_name: napari_blob_detection._widget:detect_blobs_widget
       title: Detects blobs on images
   widgets:
-    - command: napari-blob-detection.detect_blobs
-      autogenerate: true
+    - command: napari-blob-detection.detect_blobs_widget
       display_name: Detects blobs on images
