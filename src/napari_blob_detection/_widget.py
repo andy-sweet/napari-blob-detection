@@ -1,36 +1,12 @@
-from enum import Enum, auto
 from magicgui import magicgui, widgets
-from typing import Annotated
+from typing import Annotated, Callable
 from skimage.feature import blob_dog, blob_doh, blob_log
 import numpy as np
 
 
-class Dimensionality(Enum):
-    TWO_D = auto()
-    THREE_D = auto()
-
-
-DIMENSIONALITY_LOOKUP = {
-    Dimensionality.TWO_D: 2,
-    Dimensionality.THREE_D: 3,
-}
-
-class Algorithm(Enum):
-    DOG = auto()
-    DOH = auto()
-    LOG = auto()
-
-
-ALGORITHM_LOOKUP = {
-    Algorithm.DOG: blob_dog,
-    Algorithm.DOH: blob_doh,
-    Algorithm.LOG: blob_log,
-}
-
-
 def difference_of_gaussian(
     image: 'napari.layers.Image',
-    dimensionality: Dimensionality = Dimensionality.TWO_D,
+    dimensionality: Annotated[int, {'choices': [2, 3]}] = 2,
     min_sigma: Annotated[float, {'min': 0.5, 'max': 15, 'step': 0.5}] = 1,
     max_sigma: Annotated[float, {'min': 1, 'max': 1000, 'step': 0.5}] = 50,
     sigma_ratio: Annotated[float, {'min': 1, 'max': 10}] = 1.6,
@@ -39,10 +15,10 @@ def difference_of_gaussian(
     exclude_border: bool = False,
 ) -> 'napari.types.LayerDataTuple':
     kwargs = locals()
-    return detect_blobs(
-        kwargs.pop('image'),
-        Algorithm.DOG,
-        kwargs.pop('dimensionality'),
+    return _detect_blobs(
+        image=kwargs.pop('image'),
+        method=blob_dog,
+        dimensionality=kwargs.pop('dimensionality'),
         **kwargs,
     )
 
@@ -57,17 +33,17 @@ def determinant_of_hessian(
     log_scale: bool = False,
 ) -> 'napari.types.LayerDataTuple':
     kwargs = locals()
-    return detect_blobs(
-        kwargs.pop('image'),
-        Algorithm.DOH,
-        Dimensionality.TWO_D,
+    return _detect_blobs(
+        image=kwargs.pop('image'),
+        method=blob_doh,
+        dimensionality=2,
         **kwargs,
     )
 
 
 def laplacian_of_gaussian(
     image: 'napari.layers.Image',
-    dimensionality: Dimensionality = Dimensionality.TWO_D,
+    dimensionality: Annotated[int, {'choices': [2, 3]}] = 2,
     min_sigma: Annotated[float, {'min': 0.5, 'max': 15, 'step': 0.5}] = 1,
     max_sigma: Annotated[float, {'min': 1, 'max': 1000, 'step': 0.5}] = 50,
     num_sigma: Annotated[int, {'min': 1, 'max': 20}] = 10,
@@ -77,35 +53,35 @@ def laplacian_of_gaussian(
     exclude_border: bool = False,
 ) -> 'napari.types.LayerDataTuple':
     kwargs = locals()
-    return detect_blobs(
-        kwargs.pop('image'),
-        Algorithm.LOG,
-        kwargs.pop('dimensionality'),
+    return _detect_blobs(
+        image=kwargs.pop('image'),
+        method=blob_log,
+        dimensionality=kwargs.pop('dimensionality'),
         **kwargs,
     )
 
 
-def detect_blobs(
+def _detect_blobs(
+    *,
     image: 'napari.layers.Image',
-    algorithm: Algorithm = Algorithm.DOG,
-    dimensionality: Dimensionality = Dimensionality.TWO_D,
+    method: Callable[..., np.ndarray],
+    dimensionality: Annotated[int, {'choices': [2, 3]}] = 2,
     **kwargs,
 ) -> 'napari.types.LayerDataTuple':
+    # TODO: check that image has at least the given dimensionality.
     data = image.data
+    feature_slices = tuple(slice(n) for n in data.shape[-dimensionality:])
     all_coords = []
     all_sigmas = []
-    algorithm_func = ALGORITHM_LOOKUP[algorithm]
-    ndim = DIMENSIONALITY_LOOKUP[dimensionality]
-    last_dims_index = tuple(slice(n) for n in data.shape[-ndim:])
-    for index in np.ndindex(data.shape[:-ndim]):
-        full_index = index + last_dims_index
+    for index in np.ndindex(data.shape[:-dimensionality]):
+        full_index = index + feature_slices
         indexed_image_data = data[full_index]
-        coords = algorithm_func(indexed_image_data, **kwargs)
+        coords = method(indexed_image_data, **kwargs)
         for c in coords:
-            all_coords.append(index + tuple(c[:ndim]))
+            all_coords.append(index + tuple(c[:-1]))
             all_sigmas.append(c[-1])
     state = {
-        'name': f'{image.name}-{algorithm}',
+        'name': f'{image.name}-features-{method.__name__}',
         'face_color': 'red',
         'opacity': 0.5,
         'features': {'sigma': all_sigmas},
@@ -114,7 +90,7 @@ def detect_blobs(
         'rotate': image.rotate,
         'shear': image.shear,
         'affine': image.affine, 
-        'size': np.sqrt(ndim) * np.array(all_sigmas),
+        'size': np.sqrt(dimensionality) * np.array(all_sigmas),
     }
     return (all_coords, state, 'Points')
 
@@ -127,11 +103,11 @@ METHODS = {
 
 
 def detect_blobs_widget() -> widgets.Container:
-    # make a widget function that will select from the methods
+    # Make a widget function that will select from the methods.
     method = widgets.ComboBox(choices=tuple(METHODS), name='method')
     container = widgets.Container(widgets=[method], labels=False)
 
-    # when the method changes, populate the container with the correct widget
+    # When the method changes, populate the container with the correct widget.
     @method.changed.connect
     def _add_subwidget(method_name: str):
         if len(container) > 1:
@@ -140,6 +116,7 @@ def detect_blobs_widget() -> widgets.Container:
         subwidget.margins = (0, 0, 0, 0)
         container.append(subwidget)
 
+    # Set the default method and force the subwidget to update accordingly.
     method.value = 'Difference of Gaussian'
     _add_subwidget(method.value)
 
