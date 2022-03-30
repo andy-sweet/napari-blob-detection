@@ -68,8 +68,9 @@ def _detect_blobs(
     dimensionality: Annotated[int, {'choices': [2, 3]}] = 2,
     **kwargs,
 ) -> 'napari.types.LayerDataTuple':
-    # TODO: check that image has at least the given dimensionality.
     data = image.data
+    if data.ndim < dimensionality:
+        raise ValueError(f'The input image has fewer dimensions ({data.ndim}) than the feature dimensionality ({dimensionality})')
     feature_slices = tuple(slice(n) for n in data.shape[-dimensionality:])
     all_coords = []
     all_sigmas = []
