@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from skimage.feature import blob_dog, blob_doh, blob_log
+from skimage.feature import blob_dog, blob_log
 import numpy as np
 
 
@@ -15,13 +15,11 @@ DIMENSIONALITY_LOOKUP = {
 
 class Algorithm(Enum):
     DOG = auto()
-    DOH = auto()
     LOG = auto()
 
 
 ALGORITHM_LOOKUP = {
     Algorithm.DOG: blob_dog,
-    Algorithm.DOH: blob_doh,
     Algorithm.LOG: blob_log,
 }
 
@@ -29,20 +27,40 @@ ALGORITHM_LOOKUP = {
 def detect_blobs(
     image: "napari.layers.Image",
     min_sigma: float = 1,
-    max_sigma: float = 50,
-    threshold: float = 0.5,
+    max_sigma: float = 10,
+    threshold: float = 0.1,
     dimensionality: Dimensionality = Dimensionality.TWO_D,
     algorithm: Algorithm = Algorithm.DOG,
 ) -> "napari.types.LayerDataTuple":
+
+    """
+    
+    Parameters
+    ----------
+    image : napari.layers.Image
+        Image layer for blob detection. Can be a 2D, 3D, or higher dimensionality image.
+    min_sigma : float
+        The smallest blob size to detect.
+    max_sigma : float
+        The largest blob size to detect.
+    threshold : float
+        Reduce this to detect blobs with lower intensities.
+    dimensionality: 
+        Specify if the image is 2D(+t) or 3D(+t).
+    algorithm:
+        LOG is the most accurate and slowest approach.
+        DOG is a faster approximation of LOG approach.
+    """
+
     data = image.data
     all_coords = []
     all_sigmas = []
     algorithm_func = ALGORITHM_LOOKUP[algorithm]
     ndim = DIMENSIONALITY_LOOKUP[dimensionality]
     if ndim == 2:
-        radius = np.sqrt(2)
+        radius_factor = np.sqrt(2)
     else:
-        radius = np.sqrt(3)
+        radius_factor = np.sqrt(3)
 
     last_dims_index = tuple(slice(n) for n in data.shape[-ndim:])
     for index in np.ndindex(data.shape[:-ndim]):
@@ -56,8 +74,8 @@ def detect_blobs(
         'name': f'{image.name}-{algorithm}',
         'face_color': 'red',
         'opacity': 0.5,
-        'features': {'sigma': all_sigmas},
-        'size': radius * np.array(all_sigmas),
+        'features': {'radius': radius_factor * np.array(all_sigmas)},
+        'size': radius_factor * np.array(all_sigmas),
         # match the scale of the image and the point
         # point coordinates are not affected 
         'scale': image.scale,
