@@ -43,42 +43,6 @@ def difference_of_gaussian(
     )
 
 
-def determinant_of_hessian(
-    image: 'napari.layers.Image',
-    min_sigma: Annotated[float, {'min': 0.5, 'max': 15, 'step': 0.5}] = 1,
-    max_sigma: Annotated[float, {'min': 1, 'max': 1000, 'step': 0.5}] = 30,
-    num_sigma: Annotated[int, {'min': 1, 'max': 20}] = 10,
-    threshold: Annotated[float, {'min': 0, 'max': 1000, 'step': 0.01}] = 0.01,
-    overlap: Annotated[float, {'min': 0, 'max': 1, 'step': 0.01}] = 0.5,
-    log_scale: bool = False,
-) -> 'napari.types.LayerDataTuple':
-    """ Detects features points on an image layer.
-    
-    Parameters
-    ----------
-    image : napari.layers.Image
-        Image layer for blob detection. Can be a 2D, 3D, or higher dimensionality image.
-    min_sigma : float
-        The smallest blob size to detect.
-    max_sigma : float
-        The largest blob size to detect.
-    threshold : float
-        Reduce this to detect blobs with lower intensities.
-    
-    Returns
-    -------
-    napari.types.LayerDataTuple
-        A 3-tuple containing the feature points data, other state, and 'points'.
-    """
-    kwargs = locals()
-    return _detect_blobs(
-        image=kwargs.pop('image'),
-        method=blob_doh,
-        dimensionality=2,
-        **kwargs,
-    )
-
-
 def laplacian_of_gaussian(
     image: 'napari.layers.Image',
     dimensionality: Annotated[int, {'choices': [2, 3]}] = 2,
@@ -156,7 +120,6 @@ def _detect_blobs(
 
 METHODS = {
     'Difference of Gaussian': difference_of_gaussian,
-    'Determinant of Hessian': determinant_of_hessian,
     'Laplacian of Gaussian': laplacian_of_gaussian,
 }
 
