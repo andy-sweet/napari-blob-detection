@@ -1,15 +1,21 @@
 from magicgui import magicgui, widgets
 from typing import Annotated, Callable
-from skimage.feature import blob_dog, blob_doh, blob_log
+from skimage.feature import blob_dog, blob_log
 import numpy as np
+
+Dimensionality = Annotated[int, {'choices': [2, 3]}]
+MinSigma = Annotated[float, {'min': 0.5, 'max': 15, 'step': 0.5}]
+MaxSigma = Annotated[float, {'min': 1, 'max': 1000, 'step': 0.5}]
+Threshold = Annotated[float, {'min': 0, 'max': 1000, 'step': 0.1}]
 
 
 def difference_of_gaussian(
     image: 'napari.layers.Image',
-    dimensionality: Annotated[int, {'choices': [2, 3]}] = 2,
-    min_sigma: Annotated[float, {'min': 0.5, 'max': 15, 'step': 0.5}] = 1,
-    max_sigma: Annotated[float, {'min': 1, 'max': 1000, 'step': 0.5}] = 50,
-    threshold: Annotated[float, {'min': 0, 'max': 1000, 'step': 0.1}] = 0.5,
+    *,
+    dimensionality: Dimensionality = 2,
+    min_sigma: MinSigma = 1,
+    max_sigma: MaxSigma = 50,
+    threshold: Threshold = 0.5,
 ) -> 'napari.types.LayerDataTuple':
     """ Detects features points on an image layer.
     
@@ -42,11 +48,10 @@ def difference_of_gaussian(
 
 def laplacian_of_gaussian(
     image: 'napari.layers.Image',
-    dimensionality: Annotated[int, {'choices': [2, 3]}] = 2,
-    min_sigma: Annotated[float, {'min': 0.5, 'max': 15, 'step': 0.5}] = 1,
-    max_sigma: Annotated[float, {'min': 1, 'max': 1000, 'step': 0.5}] = 50,
-    num_sigma: Annotated[int, {'min': 1, 'max': 20}] = 10,
-    threshold: Annotated[float, {'min': 0, 'max': 1000, 'step': 0.1}] = 0.2,
+    dimensionality: Dimensionality = 2,
+    min_sigma: MinSigma = 1,
+    max_sigma: MaxSigma = 50,
+    threshold: Threshold = 0.5,
 ) -> 'napari.types.LayerDataTuple':
     """ Detects features points on an image layer.
     
@@ -97,6 +102,8 @@ def _detect_blobs(
         for c in coords:
             all_coords.append(index + tuple(c[:-1]))
             all_sigmas.append(c[-1])
+    all_coords = np.reshape(all_coords, (-1, image.ndim))
+    all_sigmas = np.array(all_sigmas)
     state = {
         'name': f'{image.name}-features-{method.__name__}',
         'face_color': 'red',
@@ -107,7 +114,7 @@ def _detect_blobs(
         'rotate': image.rotate,
         'shear': image.shear,
         'affine': image.affine, 
-        'size': np.sqrt(dimensionality) * np.array(all_sigmas),
+        'size': np.sqrt(dimensionality) * all_sigmas,
     }
     return (all_coords, state, 'Points')
 
