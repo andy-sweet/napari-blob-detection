@@ -9,10 +9,7 @@ def difference_of_gaussian(
     dimensionality: Annotated[int, {'choices': [2, 3]}] = 2,
     min_sigma: Annotated[float, {'min': 0.5, 'max': 15, 'step': 0.5}] = 1,
     max_sigma: Annotated[float, {'min': 1, 'max': 1000, 'step': 0.5}] = 50,
-    sigma_ratio: Annotated[float, {'min': 1, 'max': 10}] = 1.6,
     threshold: Annotated[float, {'min': 0, 'max': 1000, 'step': 0.1}] = 0.5,
-    overlap: Annotated[float, {'min': 0, 'max': 1, 'step': 0.01}] = 0.5,
-    exclude_border: bool = False,
 ) -> 'napari.types.LayerDataTuple':
     """ Detects features points on an image layer.
     
@@ -50,9 +47,6 @@ def laplacian_of_gaussian(
     max_sigma: Annotated[float, {'min': 1, 'max': 1000, 'step': 0.5}] = 50,
     num_sigma: Annotated[int, {'min': 1, 'max': 20}] = 10,
     threshold: Annotated[float, {'min': 0, 'max': 1000, 'step': 0.1}] = 0.2,
-    overlap: Annotated[float, {'min': 0, 'max': 1, 'step': 0.01}] = 0.5,
-    log_scale: bool = False,
-    exclude_border: bool = False,
 ) -> 'napari.types.LayerDataTuple':
     """ Detects features points on an image layer.
     
