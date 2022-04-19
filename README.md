@@ -21,7 +21,7 @@ and review the napari docs for plugin developers:
 https://napari.org/plugins/stable/index.html
 -->
 
-This plugin uses [scikit-image's blob detection alrogithms](https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_blob.html) to detect bright blobs on dark backgrounds.
+This plugin uses [scikit-image's blob detection algorithms](https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_blob.html) to detect bright blobs on dark backgrounds.
 
 Parameters:
 image - Image layer for blob detection. Can be a 2D, 3D, or higher dimensionality image.
