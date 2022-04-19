@@ -33,7 +33,7 @@ def detect_blobs(
     algorithm: Algorithm = Algorithm.DOG,
 ) -> "napari.types.LayerDataTuple":
 
-    """
+    """ Detects features points on an image layer.
     
     Parameters
     ----------
