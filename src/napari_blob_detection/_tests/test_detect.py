@@ -50,6 +50,20 @@ def test_detect_with_3d_image_two_2d_points(method):
 
 
 @pytest.mark.parametrize('method', METHODS)
+def test_detect_with_3d_image_one_3d_point(method):
+    image = Image(np.zeros((10, 10, 10)))
+    image.data[4:7, 3:6, 5:8] = 1
+    
+    points_data, points_state, layer_type = method(image, dimensionality=3)
+
+    assert layer_type.lower() == 'points'
+    np.testing.assert_allclose(points_data, [[5, 4, 6]])
+    assert len(points_state['size']) == 1
+    assert len(points_state['features']['sigma']) == 1
+    np.testing.assert_allclose(points_state['size'], np.sqrt(3) * points_state['features']['sigma'])
+
+
+@pytest.mark.parametrize('method', METHODS)
 def test_detect_with_2d_image_3d_features(method):
     image = Image(np.zeros((10, 10)))
     
