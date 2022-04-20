@@ -1,4 +1,3 @@
-from tkinter import W
 import pytest
 import numpy as np
 from napari.layers import Image
@@ -9,7 +8,7 @@ METHODS = (difference_of_gaussian, laplacian_of_gaussian)
 
 
 @pytest.mark.parametrize('method', METHODS)
-def test_detect_feature_points_with_2d_image_no_points(method):
+def test_detect_with_2d_image_no_points(method):
     image = Image(np.zeros((10, 10)))
     
     points_data, points_state, layer_type = method(image, dimensionality=2)
