@@ -12,7 +12,7 @@ def test_detect_blobs_widget():
         
 
 @pytest.mark.parametrize('method', [difference_of_gaussian, laplacian_of_gaussian])
-def test_difference_of_gaussian(method):
+def test_detect_features(method):
     image = Image(np.zeros((6, 5)))
     
     points_data, points_state, layer_type = method(image, dimensionality=2)

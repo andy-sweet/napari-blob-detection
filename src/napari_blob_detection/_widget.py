@@ -18,7 +18,7 @@ def difference_of_gaussian(
     threshold: Threshold = 0.5,
 ) -> 'napari.types.LayerDataTuple':
     """ Detects features points on an image layer.
-    
+
     Parameters
     ----------
     image : napari.layers.Image
@@ -31,7 +31,7 @@ def difference_of_gaussian(
         The largest blob size to detect.
     threshold : float
         Reduce this to detect blobs with lower intensities.
-    
+
     Returns
     -------
     napari.types.LayerDataTuple
@@ -48,13 +48,14 @@ def difference_of_gaussian(
 
 def laplacian_of_gaussian(
     image: 'napari.layers.Image',
+    *,
     dimensionality: Dimensionality = 2,
     min_sigma: MinSigma = 1,
     max_sigma: MaxSigma = 50,
     threshold: Threshold = 0.5,
 ) -> 'napari.types.LayerDataTuple':
     """ Detects features points on an image layer.
-    
+
     Parameters
     ----------
     image : napari.layers.Image
@@ -67,7 +68,7 @@ def laplacian_of_gaussian(
         The largest blob size to detect.
     threshold : float
         Reduce this to detect blobs with lower intensities.
-    
+
     Returns
     -------
     napari.types.LayerDataTuple
@@ -144,3 +145,4 @@ def detect_blobs_widget() -> widgets.Container:
     _add_subwidget(method.value)
 
     return container
+
