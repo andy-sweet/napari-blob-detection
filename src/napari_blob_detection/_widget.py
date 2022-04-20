@@ -2,7 +2,10 @@ from magicgui import magicgui, widgets
 from typing import Annotated, Callable
 from skimage.feature import blob_dog, blob_log
 import numpy as np
+from napari.layers import Image
+from napari.types import LayerDataTuple
 
+# Define common argument types.
 Dimensionality = Annotated[int, {'choices': [2, 3]}]
 MinSigma = Annotated[float, {'min': 0.5, 'max': 15, 'step': 0.5}]
 MaxSigma = Annotated[float, {'min': 1, 'max': 1000, 'step': 0.5}]
@@ -10,21 +13,25 @@ Threshold = Annotated[float, {'min': 0, 'max': 1000, 'step': 0.1}]
 
 
 def difference_of_gaussian(
-    image: 'napari.layers.Image',
+    image: Image,
     *,
     dimensionality: Dimensionality = 2,
     min_sigma: MinSigma = 1,
     max_sigma: MaxSigma = 50,
     threshold: Threshold = 0.5,
-) -> 'napari.types.LayerDataTuple':
-    """ Detects features points on an image layer.
+) -> LayerDataTuple:
+    """ Detects features points on an image layer using the Difference of Gaussian method.
+
+    The dimensionality of the image must be at least as high as the dimensionality of the
+    features. If the image has more dimensions than the features, this will iterate over
+    the leading extra dimensions.
 
     Parameters
     ----------
-    image : napari.layers.Image
+    image : Image
         Image layer for blob detection. Can be a 2D, 3D, or higher dimensionality image.
-    dimensionality: 
-        Specify if the image is 2D(+t) or 3D(+t).
+    dimensionality : Literal[2, 3]
+        The dimensionality of the blobs to find.
     min_sigma : float
         The smallest blob size to detect.
     max_sigma : float
@@ -34,8 +41,8 @@ def difference_of_gaussian(
 
     Returns
     -------
-    napari.types.LayerDataTuple
-        A 3-tuple containing the feature points data, other state, and 'points'.
+    LayerDataTuple
+        A 3-tuple containing the feature points data, other state, and 'Points'.
     """
     kwargs = locals()
     return _detect_blobs(
@@ -47,21 +54,25 @@ def difference_of_gaussian(
 
 
 def laplacian_of_gaussian(
-    image: 'napari.layers.Image',
+    image: Image,
     *,
     dimensionality: Dimensionality = 2,
     min_sigma: MinSigma = 1,
     max_sigma: MaxSigma = 50,
     threshold: Threshold = 0.5,
-) -> 'napari.types.LayerDataTuple':
+) -> LayerDataTuple:
     """ Detects features points on an image layer.
+
+    The dimensionality of the image must be at least as high as the dimensionality of the
+    features. If the image has more dimensions than the features, this will iterate over
+    the leading extra dimensions.
 
     Parameters
     ----------
-    image : napari.layers.Image
+    image : Image
         Image layer for blob detection. Can be a 2D, 3D, or higher dimensionality image.
-    dimensionality: 
-        Specify if the image is 2D(+t) or 3D(+t).
+    dimensionality : Literal[2, 3]
+        The dimensionality of the blobs to find.
     min_sigma : float
         The smallest blob size to detect.
     max_sigma : float
@@ -71,8 +82,8 @@ def laplacian_of_gaussian(
 
     Returns
     -------
-    napari.types.LayerDataTuple
-        A 3-tuple containing the feature points data, other state, and 'points'.
+    LayerDataTuple
+        A 3-tuple containing the feature points data, other state, and 'Points'.
     """
     kwargs = locals()
     return _detect_blobs(
@@ -85,14 +96,16 @@ def laplacian_of_gaussian(
 
 def _detect_blobs(
     *,
-    image: 'napari.layers.Image',
+    image: Image,
     method: Callable[..., np.ndarray],
-    dimensionality: Annotated[int, {'choices': [2, 3]}] = 2,
+    dimensionality: Dimensionality = 2,
     **kwargs,
-) -> 'napari.types.LayerDataTuple':
+) -> LayerDataTuple:
     data = image.data
     if data.ndim < dimensionality:
         raise ValueError(f'The input image has fewer dimensions ({data.ndim}) than the feature dimensionality ({dimensionality})')
+    # Find features in the last dimensions of the image and iterate over
+    # leading dimensions.
     feature_slices = tuple(slice(n) for n in data.shape[-dimensionality:])
     all_coords = []
     all_sigmas = []
@@ -107,14 +120,14 @@ def _detect_blobs(
     all_sigmas = np.array(all_sigmas)
     state = {
         'name': f'{image.name}-features-{method.__name__}',
-        'face_color': 'red',
-        'opacity': 0.5,
         'features': {'sigma': all_sigmas},
         'scale': image.scale,
         'translate': image.translate,
         'rotate': image.rotate,
         'shear': image.shear,
         'affine': image.affine, 
+        'opacity': 0.5,
+        'face_color': 'red',
         'size': np.sqrt(dimensionality) * all_sigmas,
     }
     return (all_coords, state, 'Points')
@@ -145,4 +158,3 @@ def detect_blobs_widget() -> widgets.Container:
     _add_subwidget(method.value)
 
     return container
-
