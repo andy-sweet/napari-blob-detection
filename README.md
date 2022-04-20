@@ -21,7 +21,13 @@ and review the napari docs for plugin developers:
 https://napari.org/plugins/stable/index.html
 -->
 
-This plugin uses [scikit-image's blob detection algorithms](https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_blob.html) to detect bright blobs on dark backgrounds.
+This plugin consists of two widgets: <br>
+(1) Detects blobs on images <br>
+(2) Convert points layer to labels layer
+_____________
+(1) Detects blobs on images
+
+This widget uses [scikit-image's blob detection algorithms](https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_blob.html) to detect bright blobs on dark backgrounds.
 
 Parameters
 
@@ -37,7 +43,12 @@ Output
 Blobs are represented by the Points layer.
 The size of each blob is proportional to `Points.feature['sigma']`,
 which signifies the scale at which the feature point was found.
+_____________
+(2) Convert points layer to labels layer
 
+This widget takes a points layer and converts it into a labels layer, with the image dimension matching the selected image layer.
+By converting points to labels, users can leverage feature extraction functions that are available to labels to the detected points.
+______________
 
 ## Installation
 
