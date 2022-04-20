@@ -23,19 +23,21 @@ https://napari.org/plugins/stable/index.html
 
 This plugin uses [scikit-image's blob detection algorithms](https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_blob.html) to detect bright blobs on dark backgrounds.
 
-Parameters:
-image - Image layer for blob detection. Can be a 2D, 3D, or higher dimensionality image.
-min_sigma - The smallest blob size to detect
-max_sigma - The largest blob size to detect
-threshold - The lower the threshold, the more low intensity blobs are detected. 
-dimensionality - Users can specify if the image is 2D(+t) or 3D(+t).
-algorithm - DOG (Difference of Gaussian)/ LOG (Laplacian of Gaussian)
-LOG is the most accurate and slowest approach.
-DOG is a faster approximation of LOG approach.
+Parameters
 
-Output:
-Blobs are represented by the Points layer. 
-The size of each blob is saved under feature['radius']. 
+- method: Laplacian of Gaussian (most accurate) or Difference of Gaussian (faster approximation) 
+- image: Image layer for blob detection. Can be a 2D, 3D, or higher dimensionality image.
+- dimensionality: users can specify if the image is 2D(+t) or 3D(+t).
+- min sigma: the smallest blob size to detect
+- max sigma: the largest blob size to detect
+- threshold: the lower the threshold, the more low intensity blobs are detected. 
+
+Output
+
+Blobs are represented by the Points layer.
+The size of each blob is proportional to `Points.feature['sigma']`,
+which signifies the scale at which the feature point was found.
+
 
 ## Installation
 
