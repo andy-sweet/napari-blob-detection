@@ -1,4 +1,5 @@
-from typing import Annotated, Callable
+from typing import Callable
+from typing_extensions import Annotated
 from skimage.feature import blob_dog, blob_log
 import numpy as np
 from napari.layers import Image
