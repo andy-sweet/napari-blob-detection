@@ -51,6 +51,7 @@ which signifies the scale at which the feature point was found.
 
 This widget takes a points layer and converts it into a labels layer, with the image dimension matching the selected image layer.
 By converting points to labels, users can leverage feature extraction functions that are available to labels to the detected points.
+
 ----------------------------------
 
 ## Installation
