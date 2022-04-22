@@ -1,4 +1,4 @@
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 from ._detect import difference_of_gaussian, laplacian_of_gaussian
 from ._points_to_labels import points_to_labels
