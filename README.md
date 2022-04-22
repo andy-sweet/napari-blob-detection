@@ -46,6 +46,7 @@ Output
 Blobs are represented by the Points layer.
 The size of each blob is proportional to `Points.feature['sigma']`,
 which signifies the scale at which the feature point was found.
+
 ### Convert points layer to labels layer
 
 This widget takes a points layer and converts it into a labels layer, with the image dimension matching the selected image layer.
