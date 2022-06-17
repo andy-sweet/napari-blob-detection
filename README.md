@@ -23,7 +23,7 @@ https://napari.org/plugins/stable/index.html
 
 This plugin consists of two widgets:
 
-1. Detects blobs on images
+1. Detects blobs on images (a.k.a. spot detection)
 2. Convert points layer to labels layer
 
 ----------------------------------
@@ -34,7 +34,7 @@ This widget uses [scikit-image's blob detection algorithms](https://scikit-image
 
 Parameters
 
-- method: Laplacian of Gaussian (most accurate) or Difference of Gaussian (faster approximation) 
+- method: Laplacian of Gaussian (most accurate) or Difference of Gaussian (faster approximation)
 - image: Image layer for blob detection. Can be a 2D, 3D, or higher dimensionality image.
 - dimensionality: users can specify if the image is 2D(+t) or 3D(+t).
 - min sigma: the smallest blob size to detect
